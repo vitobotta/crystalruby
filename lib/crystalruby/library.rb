@@ -128,6 +128,8 @@ module CrystalRuby
     end
 
     def shards_installed?
+      return true if config.crystal_missing_ignore && File.exist?(lib_file)
+
       shard_file_content = nil
       shards.all? do |k, v|
         dependencies ||= shard_file_contents["dependencies"]

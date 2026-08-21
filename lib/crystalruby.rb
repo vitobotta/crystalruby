@@ -41,11 +41,9 @@ module CrystalRuby
     msg = "Crystal executable not found. Please ensure Crystal is installed and in your PATH. " \
       "See https://crystal-lang.org/install/."
 
-    if config.crystal_missing_ignore
-      config.logger.error msg
-    else
-      raise msg
-    end
+    raise msg unless config.crystal_missing_ignore
+
+    log_debug msg
   end
 
   def check_config!
