@@ -274,7 +274,10 @@ module CrystalRuby
     end
 
     def digest
-      Digest::MD5.hexdigest(File.read(codegen_dir / "index.cr")) if File.exist?(codegen_dir / "index.cr")
+      return unless File.exist?(codegen_dir / "index.cr")
+
+      compile_mode = config.single_thread_mode ? "single-thread" : "multi-thread"
+      Digest::MD5.hexdigest("#{compile_mode}\0#{File.read(codegen_dir / "index.cr")}")
     end
 
     def self.chunk_store

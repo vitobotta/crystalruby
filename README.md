@@ -716,6 +716,10 @@ CrystalRuby.configure do |config|
 end
 ```
 
+Single-thread mode compiles Crystal with `-Dwithout_mt`. Compiled library names
+include the runtime mode, so switching modes selects a separately compiled
+artifact. Rebuild existing libraries after changing this setting.
+
 ## Live Reloading
 
 `crystalruby` supports live reloading of Crystal code. It will intelligently
