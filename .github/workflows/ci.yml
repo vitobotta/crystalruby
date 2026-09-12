@@ -20,3 +20,8 @@ jobs:
         with:
           crystal: "1.21.0"
       - run: bundle exec rake test
+      - run: sudo apt-get update && sudo apt-get install -y libjemalloc2
+      - name: Test with the preloaded process allocator
+        run: bundle exec rake test
+        env:
+          LD_PRELOAD: /usr/lib/x86_64-linux-gnu/libjemalloc.so.2

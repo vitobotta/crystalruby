@@ -7,6 +7,7 @@
 - Added support for running `crustalruby` without the `crystal` binary in dry mode. [#15]
 - Added Ruby 4.0 and Prism 1.9 compatibility.
 - Added single-threaded CI coverage with Crystal 1.21.
+- Fixed cross-runtime transport cleanup with preloaded allocators such as jemalloc by using the process-wide allocation functions.
 
 ## [0.1.4] - 2024-04-10
 

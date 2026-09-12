@@ -32,7 +32,7 @@ module CrystalRuby
           end
 
           extend FFI::Library
-          ffi_lib "c"
+          ffi_lib FFI::Library::CURRENT_PROCESS
           attach_function :_calloc, :calloc, %i[size_t size_t], :pointer
           attach_function :_free, :free, [:pointer], :void
           define_singleton_method(:ptr, &FFI::Pointer.method(:new))

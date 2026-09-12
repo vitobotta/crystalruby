@@ -54,40 +54,29 @@ class TestGCActive < Minitest::Test
     GC.collect
   end
 
-  def test_crystal_alloc_crystal_free
-    object = crystal_alloc
-    ptr = FFI::Pointer.new(object.address)
-    assert_equal ptr.read_int32, 2
-    object = nil
-    GC.start
-    assert_equal ptr.read_int32, 1
-    crystal_gc
-    refute_equal ptr.read_int32, 1
-    refute_equal ptr.read_int32, 0
+  crystallize -> { TestGCActive::ObjectAllocTest }
+  def stored_value
+    @@value.not_nil!
   end
 
   def test_ruby_alloc_crystal_free
-    object = ObjectAllocTest.new({ hash: { 1 => 2 }, string: "hello", array: [1, 2, 3] })
-    store_for_later(object)
-    ptr = FFI::Pointer.new(object.address)
-    assert_equal ptr.read_int32, 2
-    object = nil
-    GC.start
-    assert_equal ptr.read_int32, 1
-    clear_stored_value
-    refute_equal ptr.read_int32, 1
-    refute_equal ptr.read_int32, 0
+    value = { hash: { 3 => 4 }, string: "retained", array: [5, 6] }
+
+    10.times do
+      store_for_later(ObjectAllocTest.new(value))
+      GC.start
+      assert_equal value, stored_value.native
+      GC.start
+      clear_stored_value
+    end
   end
 
   def test_crystal_alloc_ruby_free
-    object = crystal_alloc
-    ptr = FFI::Pointer.new(object.address)
-    assert_equal ptr.read_int32, 2
-    crystal_gc
-    assert_equal ptr.read_int32, 1
-    object = nil
-    GC.start
-    refute_equal ptr.read_int32, 1
-    refute_equal ptr.read_int32, 0
+    10.times do
+      object = crystal_alloc
+      crystal_gc
+      assert_equal({ hash: { 1 => 2 }, string: "hello", array: [1, 2, 3] }, object.native)
+      GC.start
+    end
   end
 end
