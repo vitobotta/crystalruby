@@ -7,7 +7,7 @@ module CrystalRuby
     end
 
     attach_function :pthread_mutex_init, [PThreadMutexT.by_ref, :pointer], :int
-    attach_function :pthread_mutex_lock, [PThreadMutexT.by_ref], :int
+    attach_function :pthread_mutex_lock, [PThreadMutexT.by_ref], :int, blocking: true
     attach_function :pthread_mutex_unlock, [PThreadMutexT.by_ref], :int
   end
 
@@ -18,8 +18,11 @@ module CrystalRuby
 
     def synchronize
       lock
-      yield
-      unlock
+      begin
+        yield
+      ensure
+        unlock
+      end
     end
 
     def to_ptr

@@ -5,7 +5,7 @@ module CrystalRuby
 
   class_property libname : String = "crystalruby"
   class_property callbacks : Channel(Proc(Nil)) = Channel(Proc(Nil)).new
-  class_property rc_mux : Pointer(Void) = Pointer(Void).null
+  class_property! rc_mux : Pointer(Void)
   class_property task_counter : Atomic(Int32) = Atomic(Int32).new(0)
 
   # Initializing Crystal Ruby invokes init on the Crystal garbage collector.
@@ -61,9 +61,13 @@ module CrystalRuby
   end
 
   def self.synchronize(&)
-    LibC.pthread_mutex_lock(self.rc_mux)
-    yield
-    LibC.pthread_mutex_unlock(self.rc_mux)
+    mutex = self.rc_mux.as(Pointer(LibC::PthreadMutexT))
+    LibC.pthread_mutex_lock(mutex)
+    begin
+      yield
+    ensure
+      LibC.pthread_mutex_unlock(mutex)
+    end
   end
 end
 

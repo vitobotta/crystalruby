@@ -93,10 +93,12 @@ module CrystalRuby
       end
 
       def self.decrement_ref_count!(memory, by = 1)
-        synchronize { memory.write_int32(memory.read_int32 - by) }
-        return unless memory.read_int32.zero?
-
-        free!(memory)
+        release = synchronize do
+          count = memory.read_int32 - by
+          memory.write_int32(count)
+          count.zero?
+        end
+        free!(memory) if release
       end
 
       def self.free!(memory)

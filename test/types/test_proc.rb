@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../test_helper"
+require "minitest/mock"
 
 class TestProcAsync < Minitest::Test
   crystallize async: true
@@ -37,6 +38,18 @@ class TestProcAsync < Minitest::Test
 end
 
 class TestProcSync < Minitest::Test
+  def test_native_invoker_releases_the_gvl
+    type = CrystalRuby::Types::Proc(CrystalRuby::Types::Int32)
+    object = type.allocate
+    object.memory = FFI::MemoryPointer.new(:char, 20)
+    calls = []
+    constructor = ->(*args) { calls << args }
+    FFI::VariadicInvoker.stub(:new, constructor) { object.value }
+
+    assert_equal 1, calls.size
+    assert_equal({ ffi_convention: :stdcall, blocking: true }, calls.first.last)
+  end
+
   crystallize async: false
   def crystal_method_takes_bool_int32_closure(yield: Proc(Bool, Int32), returns: Int32)
     yield true

@@ -33,7 +33,9 @@ module CrystalRuby
       end
 
       def self.synchronize
-        yield
+        CrystalRuby.synchronize do
+          yield
+        end
       end
 
       def variable_width?

@@ -27,8 +27,11 @@ module CrystalRuby
 
       def self.decrement_ref_count!(memory, by=1)
         as_int32_ptr = memory.as(Pointer(::UInt32))
-        synchronize{ as_int32_ptr[0] -= by }
-        free!(memory) if as_int32_ptr[0] == 0
+        release = synchronize do
+          as_int32_ptr[0] -= by
+          as_int32_ptr[0] == 0
+        end
+        free!(memory) if release
       end
 
       def self.refsize

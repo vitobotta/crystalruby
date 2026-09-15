@@ -40,7 +40,7 @@ module CrystalRuby::Types
           memory[4].read_pointer,
           [FFI::Type::POINTER, *(inner_types[0...-1].map { |v| FFI::Type.const_get(v.ffi_type.to_s.upcase) })],
           FFI::Type.const_get(inner_types[-1].ffi_type.to_s.upcase),
-          { ffi_convention: :stdcall }
+          { ffi_convention: :stdcall, blocking: true }
         )
       end
 

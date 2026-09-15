@@ -79,4 +79,28 @@ class TestGCActive < Minitest::Test
       GC.start
     end
   end
+
+  def test_ruby_result_conversion_during_native_gc
+    objects = Queue.new
+    ready = Queue.new
+    reader = Thread.new { verify_native_results(objects: objects, ready: ready) }
+    20.times do
+      objects << crystal_alloc
+      ready.pop
+      crystal_gc
+    end
+    reader.value
+  end
+
+  private
+
+  def verify_native_results(objects:, ready:)
+    expected = { hash: { 1 => 2 }, string: "hello", array: [1, 2, 3] }
+    20.times do
+      object = objects.pop
+      ready << true
+      20.times { assert_equal expected, object.native }
+      GC.start
+    end
+  end
 end
