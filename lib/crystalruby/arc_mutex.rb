@@ -3,7 +3,7 @@ module CrystalRuby
     extend FFI::Library
     ffi_lib "c"
     class PThreadMutexT < FFI::Struct
-      layout :__align, :int64, :__size, :char, 40
+      layout :__align, :int64, :__size, [:char, FFI::Platform.mac? ? 56 : 40]
     end
 
     attach_function :pthread_mutex_init, [PThreadMutexT.by_ref, :pointer], :int
